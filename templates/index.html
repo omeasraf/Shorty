@@ -11,11 +11,22 @@
 
     <style>
         body {
-            height: 100vh;
+            height: 100%;
         }
 
         .container {
             height: 100%;
+        }
+
+        .hide {
+            display: none;
+        }
+
+        .td-truncate {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 100%;
+            max-width: 0;
         }
     </style>
 </head>
@@ -29,29 +40,93 @@
             <h2 class="display-7 fw-bold">Shorty - URL Shortner</h2>
             <div class="col-lg-6 mx-auto">
                 <p class="lead mb-4">Shorten any long links to make it easier to share with your friends.</p>
-                <form id="shortner" onsubmit="submit()">
+                <form id="shortner" name="shortner" action="" method="post">
                     <div class="mb-3">
                         <input type="text" class="form-control" id="urlInput" name="url" aria-describedby="urlInput"
-                            required
-                            placeholder="URL">
+                            required placeholder="URL">
                     </div>
-                    <button type="submit" class="btn btn-primary">Shorten</button>
+                    <button type="submit" id="submit" class="btn btn-primary">Shorten</button>
                 </form>
+            </div>
+            <div class="adding-top p-3">
+                <table class="table hide" id="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">URL</th>
+                            <th scope="col">ID</th>
+                            <th scope="col">Link</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 
-    <div>{{value}}</div>
 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+        integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/4.3.0/jquery.form.min.js"
+        integrity="sha512-YUkaLm+KJ5lQXDBdqBqk7EVhJAdxRnVdT2vtCzwPHSweCzyMgYV/tgGF4/dCyqtCC2eCphz0lRQgatGVdfR0ww=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>
-        function submit(){
-            var xhr = new XMLHttpRequest();
-            xhr.open("POST", "/api/generate"); 
-            xhr.onload = function(event){ 
-                alert("Success, server responded with: " + event.target.response); 
-            }; 
-            var formData = new FormData(document.getElementById("shortner")); 
-            xhr.send(formData);
+        var index = 0;
+        var allUrls = [];
+        $(document).ready(function () {
+            var allUrls = JSON.parse(localStorage.getItem("allUrls"));
+            if (allUrls != null) {
+                for (url of allUrls) {
+                    index++;
+                    append(url, index)
+                }
+                if ($("table > tbody > tr").length > 0 && $("table").hasClass("hide")) {
+                    $("table").removeClass("hide")
+                }
+            } else {
+                allUrls = [];
+            }
+
+            $('#shortner')
+                .ajaxForm({
+                    url: '/api/generate',
+                    type: "POST",
+                    data: $('#shortner').serialize(),
+                    beforeSubmit: function () {
+                        var value = $("#urlInput").val();
+                        $check = true;
+                        $("table > tbody > tr").each(function () {
+                            $check = $(this).find('td').eq(0).text().toLowerCase() != value
+                                .toLowerCase();
+                        });
+                        $("#urlInput").val('')
+                        return $check;
+                    },
+                    success: function (response) {
+                        allUrls.push(response);
+                        index++;
+                        append(response, index)
+
+                        if ($("table > tbody > tr").length > 0 && $("table").hasClass("hide")) {
+                            $("table").removeClass("hide")
+                        }
+
+                        localStorage.setItem("allUrls", JSON.stringify(allUrls));
+                    }
+                })
+        });
+
+        function append(res, index){
+            $("#table > tbody").append(`
+                        <tr>
+                            <th scope="row">${index}</th>
+                            <td class="td-truncate"><a href="${res.url}">${res.url}</a></td>
+                            <td>${url.id}</td>
+                            <td><a href="https://${window.location.hostname + "/link/" + res.id}">${window.location.hostname + "/link/" + res.id}</a></td>
+                        </tr>
+                        `)
         }
     </script>
 </body>

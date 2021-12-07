@@ -22,9 +22,9 @@ def index():
 def redir(id:str):
     data = db.find(id, id=True)
     if data:
-        return redirect(data.url, 200)
+        return redirect(data.url)
     else:
-        return redirect("https://omeasraf.com", 200,)
+        return redirect("https://omeasraf.com")
 
 
 @app.route('/api/generate',methods = ['POST'])

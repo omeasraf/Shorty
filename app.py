@@ -1,8 +1,5 @@
 from flask import Flask, request, render_template, redirect
-import string, random
-from flask.wrappers import Response
-
-from werkzeug.wrappers import response
+import string, random, re
 from database import Database
 
 
@@ -31,7 +28,7 @@ def redir(id:str):
 def generate_url():
     if request.method == 'POST':
         url = request.form['url']
-        if url:
+        if url and checkURL(url):
             check = db.find(url)
             if check:
                 return check.toString()
@@ -40,3 +37,11 @@ def generate_url():
                 db.create(url, id)
                 return db.find(url).toString()
     return ""
+
+@app.route("/test")
+def test():
+    return True
+
+def checkURL(url):
+    regex = r"^((([A-Za-z]{3,9}:(?:\/\/)?)(?:[-;:&=\+\$,\w]+@)?[A-Za-z0-9.-]+(:[0-9]+)?|(?:www.|[-;:&=\+\$,\w]+@)[A-Za-z0-9.-]+)((?:\/[\+~%\/.\w\-_]*)?\??(?:[-\+=&;%@.\w_]*)#?(?:[\w]*))?)"
+    return re.match(regex, url)

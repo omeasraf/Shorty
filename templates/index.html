@@ -23,10 +23,8 @@
         }
 
         .td-truncate {
-            overflow: hidden;
             text-overflow: ellipsis;
-            width: 100%;
-            max-width: 0;
+            word-break: break-all;
         }
     </style>
 </head>
@@ -105,6 +103,10 @@
                         return $check;
                     },
                     success: function (response) {
+                        if (response.length < 1){
+                            alert("Please enter a valid url!")
+                        }
+                        else{
                         allUrls.push(response);
                         index++;
                         append(response, index)
@@ -115,18 +117,19 @@
 
                         localStorage.setItem("allUrls", JSON.stringify(allUrls));
                     }
+                    }
                 })
         });
 
-        function append(res, index){
-            $("#table > tbody").append(`
+        function append(res, index) {
+            $("#table > tbody").prepend(`
                         <tr>
                             <th scope="row">${index}</th>
                             <td class="td-truncate"><a href="${res.url}">${res.url}</a></td>
                             <td>${url.id}</td>
                             <td><a href="https://${window.location.hostname + "/link/" + res.id}">${window.location.hostname + "/link/" + res.id}</a></td>
                         </tr>
-                        `)
+                        `);
         }
     </script>
 </body>

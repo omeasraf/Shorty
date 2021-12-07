@@ -12,3 +12,8 @@ A URL Shortner written with Python 3.9 using Flask and SQLite module.
 - Store url data into database
 - Intuitive frontend UI
 - Localstorage for frontend UI
+
+
+## Screenshot
+
+![Shorty UI](shorty.png)

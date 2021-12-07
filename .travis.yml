@@ -1,8 +1,6 @@
 os:
   - linux
 
-dist: xenial
-
 language: python
 
 script:
